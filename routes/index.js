@@ -15,6 +15,10 @@ router.get('/dashboard', (req, res) => {
 //@route POST /adduser
 router.post('/adduser', actions.addNew)
 
+router.patch('/update/:username',actions.update)
+
+router.delete('/delete/:username',actions.delete)
+
 //@desc Authenticate a user
 //@route POST /authenticate
 router.post('/authenticate', actions.authenticate)

@@ -6,14 +6,15 @@ var config = require('../config/dbconfig')
 
 var functions = {
     addNew: function (req, res) {
-        if (((req.body.name)== null) || ((req.body.password)== null)) { // it thease fields are missing
+        if (((req.body.name)== null) || ((req.body.password)== null) || ((req.body.email)== null)) { // it thease fields are missing
             console.log(typeof(req.body.name));
             res.json({success: false, msg: 'Enter all fields'}) //display a message
         }
         else {
             var newUser = User({ //add data to json
                 name: req.body.name,
-                password: req.body.password
+                password: req.body.password,
+                email:req.body.email,
             });
             newUser.save(function (err, newUser) { //save in database
                 if (err) {
@@ -24,6 +25,51 @@ var functions = {
                 }
             })
         }
+    },
+    update: function (req, res){
+        console.log(req.params.username);
+        User.findOneAndUpdate(
+            { name: req.params.username },
+            { $set: { password: req.body.password } },
+            {useFindAndModify: false , new:true},
+            (err, result) => {
+              if (err) {
+                  return res.status(500).json({ msg: err });
+                  //errors.noresult= "No match"
+                  //res.json(errors)
+                }
+              if(result==null){
+                return res.json({success: false, msg: 'No user with that name'})
+              }
+              
+              console.log(result)
+              res.json({success: true, msg: 'Successfully changed'})
+             
+            }
+          );
+    },
+    delete: function(req,res) {
+        console.log(req.params.username);
+        User.findOneAndDelete(
+            { name: req.params.username },
+           // { $set: { password: req.body.password } },
+           //  {useFindAndModify: false },
+            (err, result) => {
+              if (err) {
+                  return res.status(500).json({ msg: err });
+                  //errors.noresult= "No match"
+                  //res.json(errors)
+                }
+              if(result==null){
+                return res.json({success: false, msg: 'No user with that name'})
+              }
+              
+              console.log(result)
+              res.json({success: true, msg: 'Successfully changed'})
+             
+            }
+          );
+        
     },
     authenticate: function (req, res) {
         User.findOne({ //find user name  ---  "User" is a object from user.js
@@ -37,6 +83,7 @@ var functions = {
                 else {
                     user.comparePassword(req.body.password, function (err, isMatch) {
                         if (isMatch && !err) {
+                            // const token = jwt.encode({username: username,expire: Date.now() + (1000 * 60 * 60) //1 hour }, tokenSecret);
                             var token = jwt.encode(user, config.secret)
                             res.json({success: true, token: token})
                         }
@@ -54,7 +101,7 @@ var functions = {
             
             var token = req.headers.authorization.split(' ')[1] //extract token from header
             var decodedtoken = jwt.decode(token, config.secret) //decode token
-            return res.json({success: true, msg: 'Hello ' + decodedtoken.name}) //with theuse of token--> display hello userb
+            return res.json({success: true, msg: 'Hello ' + decodedtoken.name,data:decodedtoken}) //with theuse of token--> display hello userb
         }
         else {
             return res.json({success: false, msg: 'No Headers'})
@@ -63,3 +110,10 @@ var functions = {
 }
 
 module.exports = functions // to use in elsewhere
+
+//$2b$10$5mdH/gADIKXl5bRz.n4r2epalQeAsFXYth0X2tw4nbAo3Upmp0LGW
+//$2b$10$5mdH/gADIKXl5bRz.n4r2epalQeAsFXYth0X2tw4nbAo3Upmp0LGW
+//$2b$10$5mdH/gADIKXl5bRz.n4r2epalQeAsFXYth0X2tw4nbAo3Upmp0LGW
+
+//$2b$10$bs91sMH217UPPSP2msBJIuWChmKpJPPoVf.UACkY7Nkq3Muo.3wgC
+//$2b$10$rcfZh6qTcP/SjvRBsDA4VODIC.frXdpTWqSJMv0jpARxBUqVJGgce
