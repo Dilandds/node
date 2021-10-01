@@ -19,6 +19,8 @@ router.patch('/update/:username',actions.update)
 
 router.delete('/delete/:username',actions.delete)
 
+router.get('/checkname/:username',actions.check)
+
 //@desc Authenticate a user
 //@route POST /authenticate
 router.post('/authenticate', actions.authenticate)

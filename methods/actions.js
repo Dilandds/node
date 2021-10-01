@@ -2,7 +2,8 @@
 //add data to db
 var User = require('../models/user')
 var jwt = require('jwt-simple')
-var config = require('../config/dbconfig')
+var config = require('../config/dbconfig');
+const { exists } = require('../models/user');
 
 var functions = {
     addNew: function (req, res) {
@@ -47,6 +48,21 @@ var functions = {
              
             }
           );
+    },
+    check: function(req,res) {
+       User.findOne({name:req.params.username},(err,result)=>{
+           if (err) return res.status(500).json({ msg: err });
+           if(result!==null){
+               return res.json({
+                   Status: true,
+                   msg : "Username already exists!",
+               });
+           }
+           else return res.json({
+               Status: false,
+               msg: "Username is okay"
+           })
+       }); 
     },
     delete: function(req,res) {
         console.log(req.params.username);
